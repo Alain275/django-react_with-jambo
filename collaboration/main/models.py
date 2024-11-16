@@ -22,12 +22,14 @@ class Challenges(models.Model):
     date_creation=models.DateTimeField(auto_now=True)
     replay=models.CharField(max_length=500)
     comment=models.CharField(max_length=500)
+    user=models.ManyToManyField(User)
     likes=models.ManyToManyField(User)
 
 class User_profile(models.Model):
-     user_id=models.BigIntegerField()
+     id=models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
      Bio=models.CharField(max_length=100)
      photo = models.ImageField(upload_to="default.jpj")
         
 class intake (models.Model):
-     intake_id=models.BigIntegerField()
+     intake_id=models.BigIntegerField(primary_key=True)
+     user=models.ForeignKey(User,on_delete=models.CASCADE)
