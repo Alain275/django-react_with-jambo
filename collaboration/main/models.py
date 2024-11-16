@@ -17,3 +17,16 @@ class User(models.Model):
         last_name=models.CharField(max_length=20)
         year_of_study=models.CharField(max_length=3,choices=YEAR_OF_STUDY_CHOICES,default=YEAR_1)
 
+class Challenges(models.Model):
+    challenge_name=models.charField(max_length=30)
+    date_creation=models.DateTimeField(auto_now=True)
+    replay=models.charField(max_length=500)
+    comment=models.charField(max_length=500)
+    likes=models.ManyToManyField(User)
+
+    class User_profile(models.Model):
+        user_id=models.BigIntegerField(max_length=16)
+        Bio=models.charField(max_length=100)
+        photo = models.ImageField(upload_to="default.jpj")
+        class intake (models.Model):
+            intake_id=models.BigIntegerField()
