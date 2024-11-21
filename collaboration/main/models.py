@@ -23,7 +23,7 @@ class Challenges(models.Model):
     replay=models.CharField(max_length=500)
     comment=models.CharField(max_length=500)
     user=models.ManyToManyField(User)
-    likes=models.ManyToManyField(User,related_name='liked_challenges') 
+    likes=models.ManyToManyField(User,related_name='liked_challenges')  #ggggggggggggggggggggggg
 
 class User_profile(models.Model):
      id=models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
