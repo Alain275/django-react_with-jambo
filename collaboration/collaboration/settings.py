@@ -80,10 +80,15 @@ WSGI_APPLICATION = 'collaboration.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'callaboration_1', 
+        'USER': 'root', 
+        'PASSWORD': 'Richard@0780185432',   
+        'HOST': 'localhost',          
+        'PORT': '3306',               
     }
 }
+
 
 
 # Password validation
