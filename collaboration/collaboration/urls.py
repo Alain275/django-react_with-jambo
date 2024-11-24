@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
+admin.site.site_header = "NPC Computer Engineerer's Collaborative tool"
+admin.site.index_title = "Admin panel"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),

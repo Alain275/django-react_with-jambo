@@ -6,4 +6,6 @@ def hero_world_view(request):
     context = {
         'users': queryset  # Passing the queryset to the template
     }
+
+    
     return render(request, 'index.html', context)
