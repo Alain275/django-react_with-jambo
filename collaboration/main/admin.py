@@ -69,9 +69,10 @@ class User_profileAdmin(admin.ModelAdmin):
 @admin.register(intake)
 class IntakeAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
+    search_fields = ['user__first_name__istartswith','user__last_name__istartswith']
     # inlines = [IntakeInline]
     list_display = ['user_first_name', 'intake_ordinal']  # Replace with your actual fields
-    list_filter = ['user__first_name']  # You can filter by related field
+    # list_filter = ['user__first_name']  # You can filter by related field
     list_per_page = 3
 
     def user_first_name(self, obj):
