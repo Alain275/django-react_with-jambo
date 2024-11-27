@@ -38,8 +38,8 @@ class Challenges(models.Model):
     date_creation=models.DateTimeField(auto_now=True)
     replay=models.CharField(max_length=500,null=True,blank=True)
     comment=models.CharField(max_length=500, null=True,blank=True)
-    user=models.ManyToManyField(User,blank=True,null=True)
-    likes=models.ManyToManyField(User,related_name='liked_challenges',blank=True,null=True)
+    user=models.ManyToManyField(User,blank=True)
+    likes=models.ManyToManyField(User,related_name='liked_challenges',blank=True)
 
     def __str__(self):
          return self.challenge_name

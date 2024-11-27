@@ -87,7 +87,7 @@ class IntakeAdmin(admin.ModelAdmin):
     
 
 
-# admin.site.register(User,UserAdmin)
+# admin.site.register(User)
 # admin.site.register(User_profile)
 # admin.site.register(intake)
 # admin.site.register(Challenges)
