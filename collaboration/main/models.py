@@ -36,8 +36,8 @@ class User(models.Model):
 class Challenges(models.Model):
     challenge_name=models.CharField(max_length=30)
     date_creation=models.DateTimeField(auto_now=True)
-    replay=models.CharField(max_length=500,null=True,blank=True)
-    comment=models.CharField(max_length=500, null=True,blank=True)
+    # replay = models.TextField(blank=True, null=True)  # Reply by post owner (optional)
+    # comment=models.CharField(max_length=500, null=True,blank=True)
     user=models.ManyToManyField(User,blank=True)
     likes=models.ManyToManyField(User,related_name='liked_challenges',blank=True)
 
@@ -45,6 +45,31 @@ class Challenges(models.Model):
          return self.challenge_name
     class Meta:
          ordering=['challenge_name']
+
+
+
+class Review(models.Model):
+    RATING_CHOICES = [
+    (1, "1"),
+    (2, "2"),
+    (3, "3"),
+    (4, "4"),
+    (5, "5"),
+]
+
+    Challenge = models.ForeignKey('Challenges', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True, null=True)
+    reply = models.TextField(blank=True, null=True)  # Reply by post owner (optional)
+    parent_reply = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')  # For nested replies
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.rating} stars"
+
+
+
 
 class User_profile(models.Model):
      user=models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)

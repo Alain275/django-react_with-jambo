@@ -1,15 +1,41 @@
 from django.contrib import admin
-from main.models import User,User_profile,intake,Challenges
+from main.models import User,User_profile,intake,Challenges,Review
+from django.utils.html import mark_safe
 
 from django.contrib import admin
 from .models import Challenges  # Ensure this imports the Challenges model
+
+# admin.site.register(User)
+# admin.site.register(User_profile)
+# admin.site.register(intake)
+# admin.site.register(Challenges)
+
+
+@admin.register(Review)
+class ChallengeAdmin(admin.ModelAdmin):
+   
+   # List the fields to display in the admin list view
+    list_display = ['get_user_first_name', 'rating_stars']
+    list_filter = ['created_at']
+    list_per_page = 3  # Pagination: 3 items per page
+
+    # Method to get the user's first name
+    def get_user_first_name(self, obj):
+        return obj.user.first_name
+    get_user_first_name.short_description = 'User First Name'
+
+    # Method to display stars based on the rating
+    def rating_stars(self, obj):
+        return mark_safe('★' * obj.rating)  # Assuming rating is an integer between 1 and 5
+    rating_stars.short_description = 'Rating Stars'
+
 
 
 
 @admin.register(Challenges)
 class ChallengeAdmin(admin.ModelAdmin):
     actions = ['clear_comments']  # List of actions
-    list_display = ['challenge_name', 'date_creation', 'replay', 'comment']
+    list_display = ['challenge_name', 'date_creation']
     list_filter = ['date_creation']
     list_per_page = 3  # Pagination: 3 items per page
 
@@ -87,7 +113,4 @@ class IntakeAdmin(admin.ModelAdmin):
     
 
 
-# admin.site.register(User)
-# admin.site.register(User_profile)
-# admin.site.register(intake)
-# admin.site.register(Challenges)
+
