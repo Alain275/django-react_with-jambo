@@ -22,5 +22,7 @@ admin.site.index_title = "Admin panel"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main.urls')),
+    path('main/', include('main.urls')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
 ]+ debug_toolbar_urls()

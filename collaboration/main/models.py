@@ -1,35 +1,23 @@
 from django.db import models
+from user.models import Student
+from django.conf import settings
 from django.contrib import admin
+from django.utils import timezone
+from uuid import uuid4
 
 
-class User(models.Model):
-    YEAR_1 = "Y_1"
-    YEAR_2 = "Y_2"
-    YEAR_3 = "Y_3"
-    YEAR_4 = "Y_4"
-    
-    YEAR_OF_STUDY_CHOICES = [
-        (YEAR_1, "Year 1"),
-        (YEAR_2, "Year 2"),
-        (YEAR_3, "Year 3"),
-        (YEAR_4, "Year 4"),
-    ]
-    
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    year_of_study = models.CharField(
-        max_length=6,
-        choices=YEAR_OF_STUDY_CHOICES,
-        default=YEAR_1
-    )
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+class BookmarkChallengeContainer(models.Model):
+    """
+    Represents a container that groups bookmarked challenges for a user.
+    """
+    id = models.UUIDField(primary_key=True,default=uuid4)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookmark_containers")
+    # bookmark_name = models.CharField(max_length=100, default="My Bookmark's challenge")  # Optional, for multiple containers
+    created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-         return self.full_name
-    class Meta:
-         ordering=['first_name']
+        return f"{self.id} (Owner: {self.user.first_name})"         
 
 
 
@@ -38,13 +26,29 @@ class Challenges(models.Model):
     date_creation=models.DateTimeField(auto_now=True)
     # replay = models.TextField(blank=True, null=True)  # Reply by post owner (optional)
     # comment=models.CharField(max_length=500, null=True,blank=True)
-    user=models.ManyToManyField(User,blank=True)
-    likes=models.ManyToManyField(User,related_name='liked_challenges',blank=True)
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='Challenge',default=1)
+    likes=models.ManyToManyField(settings.AUTH_USER_MODEL,related_name='liked_challenges',blank=True)
 
     def __str__(self):
          return self.challenge_name
     class Meta:
          ordering=['challenge_name']
+
+class BookmarkChallengeItem(models.Model):
+    """
+    Represents a bookmarked item linked to a container and a blog post.
+    """
+    container = models.ForeignKey(BookmarkChallengeContainer, on_delete=models.CASCADE, related_name="bookmark_challenge_items")
+    challenge = models.ForeignKey(Challenges, on_delete=models.CASCADE, related_name="bookmarked_items")
+    description = models.TextField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Bookmark: {self.challenge.challenge_name} in {self.container.id}"         
+
+
+
 
 
 
@@ -58,7 +62,7 @@ class Review(models.Model):
 ]
 
     Challenge = models.ForeignKey('Challenges', on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
     comment = models.TextField(blank=True, null=True)
     reply = models.TextField(blank=True, null=True)  # Reply by post owner (optional)
@@ -67,49 +71,49 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} - {self.rating} stars"
-
-
-
-
-class User_profile(models.Model):
-     user=models.OneToOneField(User, on_delete=models.CASCADE,primary_key=True)
-     Bio=models.CharField(max_length=100,null=True,blank=True)
-     photo = models.ImageField(upload_to="default.jpj",null=True,blank=True)
     
-     @property
-     def full_name(self):
-        return f"{self.user.first_name} {self.user.last_name}"
 
-     def __str__(self):
-         return self.full_name
-     class Meta:
-         ordering=['user__first_name']
+class OrderingFeedBack(models.Model):
+    PAYIMENT_STATUS_PENDING = 'P'    
+    PAYIMENT_STATUS_COMPLETE = 'C'    
+    PAYIMENT_STATUS_FAILED = 'F'    
+    PAYIMENT_STATUS_CHOICE = [
+         (PAYIMENT_STATUS_PENDING , 'Panding'),    
+         (PAYIMENT_STATUS_COMPLETE , 'Complete'),   
+         (PAYIMENT_STATUS_FAILED ,'Failed') 
+
+    ]  
+
+    ordered_at = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(max_length=1,choices=PAYIMENT_STATUS_CHOICE,default=PAYIMENT_STATUS_PENDING)
+    student = models.ForeignKey(Student,on_delete=models.PROTECT)
+
+    class Meta:
+        permissions = [
+            ('canel_order','Can cancel order')
+        ] 
+
+
+class OrderingFeedBackItem(models.Model):
+    """
+    Represents a bookmarked item linked to a container and a blog post.
+    """
+    odering = models.ForeignKey(OrderingFeedBack, on_delete=models.CASCADE, related_name="odering_feedback_items")
+    challenge = models.ForeignKey(Challenges, on_delete=models.CASCADE, related_name="ordered_items")
+    description = models.TextField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"orders: {self.challenge.challenge_name} in {self.odering.id}"         
+
+
+
+
+
+
+
 
      
         
-class intake (models.Model):
-     intake_id=models.BigIntegerField(primary_key=True)
-     user=models.ForeignKey(User,on_delete=models.CASCADE)
-
-     def user_first_name(self, obj):
-        return obj.user.first_name  # Assuming 'user' is the related field pointing to the User model
-     user_first_name.short_description = 'User First Name'
-
-     
-
-     @staticmethod
-     def ordinal(value):
-        """
-        Convert an integer to its ordinal string representation.
-        """
-        if 11 <= value % 100 <= 13:
-            suffix = "th"
-        else:
-            suffix = {1: "st", 2: "nd", 3: "rd"}.get(value % 10, "th")
-        return f"{value}{suffix}"
-     def __str__(self):
-        return f"intake: {self.ordinal(self.intake_id)}"
-
-
-     class Meta:
-        ordering = ['intake_id']

@@ -1,14 +1,65 @@
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
-from main.models import User,User_profile,intake,Challenges,Review
+from user.models import User,Student,intake
+from .models import Challenges,Review,BookmarkChallengeItem,BookmarkChallengeContainer,OrderingFeedBack,OrderingFeedBackItem
 from django.utils.html import mark_safe
 
 from django.contrib import admin
-from .models import Challenges  # Ensure this imports the Challenges model
 
 # admin.site.register(User)
-# admin.site.register(User_profile)
+# admin.site.register(Student)
 # admin.site.register(intake)
 # admin.site.register(Challenges)
+admin.site.register(OrderingFeedBackItem)
+admin.site.register(OrderingFeedBack)
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')  # Display fields in list view
+
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "password1", "password2", "email", "first_name", "last_name",),  # Add fields for the add form
+            },
+        ),
+    )
+
+
+
+@admin.register(BookmarkChallengeContainer)
+class ChallengeAdmin(admin.ModelAdmin):
+   
+   # List the fields to display in the admin list view
+    list_display = [ id,'get_user_first_name']
+    list_filter = ['created_at']
+    list_per_page = 3  # Pagination: 3 items per page
+
+    # Method to get the user's first name
+    def get_user_first_name(self, obj):
+        return obj.user.first_name
+    get_user_first_name.short_description = 'bookmark challenges owner'
+
+@admin.register(BookmarkChallengeItem)
+class ChallengeAdmin(admin.ModelAdmin):
+   
+   # List the fields to display in the admin list view
+    list_display = [ 'challenge_name']
+    list_filter = ['created_at']
+    list_per_page = 3  # Pagination: 3 items per page
+
+    # Method to get the user's bookmark
+    def bookmark_name(self, obj):
+        return obj.container.crested_at
+    bookmark_name.short_description = 'bookmark date of creation'
+
+    # Method to get the user's challenge
+    def challenge_name(self, obj):
+        return obj.challenge.challenge_name
+    challenge_name.short_description = 'challenge name'
+
 
 
 @admin.register(Review)
@@ -27,7 +78,7 @@ class ChallengeAdmin(admin.ModelAdmin):
     # Method to display stars based on the rating
     def rating_stars(self, obj):
         return mark_safe('★' * obj.rating)  # Assuming rating is an integer between 1 and 5
-    rating_stars.short_description = 'Rating Stars'
+    rating_stars.short_description = 'Rating '
 
 
 
@@ -50,34 +101,43 @@ class ChallengeAdmin(admin.ModelAdmin):
 
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+# @admin.register(User)
+# class UserAdmin(admin.ModelAdmin):
   
-    list_display = ['full_name', 'year_of_study','IC_CS']
-    list_filter = ['year_of_study']
-    list_editable = ['year_of_study']  
-    search_fields = ['first_name__istartswith','last_name__istartswith']
-    list_per_page = 3  
+#     list_display = ['full_name', 'year_of_study','IC_CS']
+#     list_filter = ['year_of_study']
+#     list_editable = ['year_of_study']  
+#     search_fields = ['first_name__istartswith','last_name__istartswith']
+#     list_per_page = 3  
 
-    def IC_CS(self,obj):
-        if obj.year_of_study==User.YEAR_1 or obj.year_of_study==User.YEAR_2:
-         return 'COMPUTER SCIENCE '
-        else :
-         return 'INFORMATION SYSTEM'
+#     def IC_CS(self,obj):
+#         if obj.year_of_study==User.YEAR_1 or obj.year_of_study==User.YEAR_2:
+#          return 'COMPUTER SCIENCE '
+#         else :
+#          return 'INFORMATION SYSTEM'
         
-    IC_CS.short_description = 'Program(CS & IS)'
+#     IC_CS.short_description = 'Program(CS & IS)'
 
       
 
 
-@admin.register(User_profile)
+@admin.register(Student)
 class User_profileAdmin(admin.ModelAdmin):
     autocomplete_fields = ['user']
-    list_display = ['full_name', 'Bio']
+    list_display = ['username','first_name','last_name','full_name', 'Bio','year_of_study','IC_CS']
     list_filter = ['user__first_name']
    
     # list_editable = ['challenge_name']  
     list_per_page = 3
+    list_select_related = ['user']
+
+    def IC_CS(self,obj):
+        if obj.year_of_study==Student.YEAR_1 or obj.year_of_study==Student.YEAR_2:
+            return 'COMPUTER SCIENCE '
+        else :
+            return 'INFORMATION SYSTEM'
+        
+    IC_CS.short_description = 'Program(CS & IS)'
 
 # @admin.register(intake)
 # class intakeAdmin(admin.ModelAdmin):
